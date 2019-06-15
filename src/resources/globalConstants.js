@@ -1,0 +1,2 @@
+export const FIREBASE_ERROR_USER_NOT_EXISTS = 'There is no user record corresponding to this identifier';
+export const FIREBASE_ERROR_EMAIL_IN_USE = 'The email address is already in use by another account.';
