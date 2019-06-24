@@ -12,7 +12,6 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import ImagePicker from 'react-native-image-picker';
 import api from "../services/api";
 import Moment from 'moment';
-import RNFS from 'react-native-fs';
 
 
 class Perfil extends Component {
@@ -33,7 +32,7 @@ class Perfil extends Component {
         
             nome: 'TESTE_NOME',
             dtNascimento: LanguageConstants.DEFAULT_DATE,
-            fotoPerfil: ProfileIcon,
+            fotoPerfil: '',
             cidade: '',              
             telefone:'',
     };     
@@ -129,7 +128,7 @@ class Perfil extends Component {
             idFirebase: usuarioFirebase.uid,
             nome: nome,
             dtNascimento: dtNascimento,
-            fotoPerfil: fotoPerfil,    
+            fotoPerfil: '',    
             cidade: cidade,          
         };
 
