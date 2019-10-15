@@ -172,94 +172,105 @@ class Perfil extends Component {
         return (
             <View style={styles.container}>            
                 <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>   
-                   
-                {/*this.state.fotoPerfil && 
-                    <TouchableHighlight onPress={this._showImagePicker}>
-                        <Image style={styles.uploadAvatar} 
-                            source={this.state.fotoPerfil}
-                        />      
-                    </TouchableHighlight>      
-                */}     
 
-                {!this.state.fotoPerfil &&
-                    <TouchableHighlight onPress={this._showImagePicker}>
-                        <Icon
-                            name='face'
-                            type='material'
-                            color='#da552f'
-                        /> 
-                    </TouchableHighlight>  
-                }                       
+                    <Text style={styles.textoSuperior}>
+                        Perfil
+                    </Text>
+                    
+                    {/*this.state.fotoPerfil && 
+                        <TouchableHighlight onPress={this._showImagePicker}>
+                            <Image style={styles.uploadAvatar} 
+                                source={this.state.fotoPerfil}
+                            />      
+                        </TouchableHighlight>      
+                    */}     
 
-                <TextInput
-                        placeholder="e-mail"
-                        autoCapitalize="none"                    
-                        style={styles.input}
-                        maxLength={200}
-                        onChangeText={email => {}}
-                        value={this.state.usuarioFirebase.email}
-                        editable={false}/>
+                    {!this.state.fotoPerfil &&
+                        <TouchableHighlight onPress={this._showImagePicker}
+                            style={styles.avatar}>
+                            <Icon 
+                                name='face'
+                                type='material'
+                                color='#da552f'
+                            /> 
+                        </TouchableHighlight>  
+                    } 
 
+                    {this.state.usuarioFirebase.emailVerified &&
+                        <TextInput
+                            placeholder="e-mail"
+                            autoCapitalize="none"                    
+                            style={styles.input}
+                            maxLength={200}                        
+                            value={this.state.usuarioFirebase.email}
+                            editable={false}  
+                        />
+                    }  
 
-                <TouchableHighlight onPress={this.renderEmailConfirmation} isVisible={!this.state.usuarioFirebase.emailVerified}>
-                    <Image
-                        style={styles.alertEmailNaoVerificado}
-                        source={this.state.fotoPerfil}
-                    />                    
-                </TouchableHighlight>
+                    {!this.state.usuarioFirebase.emailVerified &&
+                        <TextInput
+                            placeholder="e-mail"
+                            autoCapitalize="none"                    
+                            style={styles.inputEmailNaoVerificado}
+                            maxLength={200}
+                            onChangeText={email => {}}
+                            onPress={() => {
+                                this.renderEmailConfirmation
+                            }}
+                            value={this.state.usuarioFirebase.email}
+                            editable={false}  
+                        />
+                    }                  
 
-                <TextInput
-                        placeholder="telefone"
-                        autoCapitalize="none"                    
-                        style={styles.input}
-                        maxLength={200}                           
-                        value={this.state.usuarioFirebase.phoneNumber}
-                        editable={false}/>
-                
-                <TextInput
-                        placeholder="nome"
-                        autoCapitalize="none"                    
-                        style={styles.input}
-                        maxLength={200}
-                        onChangeText={nome => this.setState({ nome })}
-                        value={this.state.nome}/>
+                    <TextInput
+                            placeholder="telefone"
+                            autoCapitalize="none"                    
+                            style={styles.input}
+                            maxLength={200}                           
+                            value={this.state.usuarioFirebase.phoneNumber}
+                            editable={false}/>
+                    
+                    <TextInput
+                            placeholder="nome"
+                            autoCapitalize="none"                    
+                            style={styles.input}
+                            maxLength={200}
+                            onChangeText={nome => this.setState({ nome })}
+                            value={this.state.nome}/>
 
-                <TextInput
+                    <TextInput
                         placeholder="data de nascimento"
                         autoCapitalize="none"                    
                         style={styles.input}
                         maxLength={200}
                         onChangeText={nome => this.setState({ dtNascimento: Moment(dtNascimento).format('DD/MM/YYYY')})}
                         value={Moment(this.state.dtNascimento).format('DD/MM/YYYY')}                           
-                        onFocus={this._showDateTimePicker} />
-                
-                <TouchableOpacity style={styles.buttonData}
-                    onPress={this._showDateTimePicker}>
-                    <Icon
-                        name='calendar'
-                        type='evilicon'
-                        color='#517fa4'
+                        onFocus={this._showDateTimePicker} 
+                        onPress={this._showDateTimePicker}/>                
+                    
+                    <DateTimePicker
+                            isVisible={this.state.isDateTimePickerVisible}
+                            mode="date"
+                            onConfirm={this._handleDatePicked}
+                            onCancel={this._hideDateTimePicker}
                     />
-                </TouchableOpacity>
-
-                <DateTimePicker
-                        isVisible={this.state.isDateTimePickerVisible}
-                        mode="date"
-                        onConfirm={this._handleDatePicked}
-                        onCancel={this._hideDateTimePicker}
-                />
-                
-                <Picker
-                    selectedValue={this.state.cidade}
-                    onValueChange={ (itemValue, itemIndex) => ( this.setState({ cidade: itemValue }) ) } >
-                    <Picker.Item key={0} value={0} label={'cidade'} />
-                    {cidades}
+                    
+                    <Picker
+                        selectedValue={this.state.cidade}
+                        style={styles.input}
+                        onValueChange={ (itemValue, itemIndex) => ( this.setState({ cidade: itemValue }) ) } >
+                        <Picker.Item key={0} value={0} label={'cidade'} />
+                            {cidades}
                     </Picker>
 
                     <TouchableOpacity style={styles.button}
-                    onPress={this.validarForm}>
-                    <Text>Salvar</Text>
-                </TouchableOpacity>
+                        onPress={this.validarForm}>
+                        <Icon 
+                            name='sc-telegram'
+                            type='evilicon'
+                            color='#4169E1'
+                        /> 
+                    </TouchableOpacity>
                    
                 </ScrollView>
                 <AwesomeAlert
@@ -292,14 +303,14 @@ class Perfil extends Component {
 const styles = StyleSheet.create({
     scroll: {
         flex: 5,
-        backgroundColor: "#fafafa"
+        backgroundColor: "#4169E1"
     },
 
     container: {
         flex: 1,
-        backgroundColor: "#fafafa",
+        backgroundColor: "#4169E1",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center"        
     },
 
     input:{
@@ -307,24 +318,38 @@ const styles = StyleSheet.create({
         width: 280,
         backgroundColor: "#fafafa",
         alignSelf: "stretch",
-        borderColor: "#0000FF",
+        borderColor: "#4169E1",
         borderWidth:1,        
         paddingHorizontal:20,
         marginLeft:25,
         marginRight:25,
         borderRadius:5,
         marginBottom:10
-    },    
+    }, 
+    
+    inputEmailNaoVerificado: {
+        height:45,
+        width: 280,
+        backgroundColor: "#fafafa",
+        alignSelf: "stretch",
+        borderColor: "#da552f",
+        borderWidth:1,        
+        paddingHorizontal:20,
+        marginLeft:25,
+        marginRight:25,
+        borderRadius:5,
+        marginBottom:10
+    },
 
     button: {
         height: 45, 
         width: 280,       
         backgroundColor: "#87CEEB",
         alignSelf: "center",
-        borderColor: "#0000FF",
+        borderColor: "#4169E1",
         borderRadius: 5,
         borderWidth: 1,               
-        justifyContent: 'center'
+        justifyContent: 'center'        
     },
 
     linkButton: {
@@ -332,7 +357,7 @@ const styles = StyleSheet.create({
         width: 280,       
         backgroundColor: "transparent",
         alignSelf: "center",
-        borderColor: "#0000FF",        
+        borderColor: "#4169E1",        
         borderWidth: 0,               
         justifyContent: 'center'        
     },
@@ -361,18 +386,23 @@ const styles = StyleSheet.create({
     },
 
     footerTab: {
-        color: "#0000FF"
+        color: "#4169E1"
     },
-
-    alertEmailNaoVerificado : {
-        height: 10, 
-        width: 10,       
-        backgroundColor: "#87CEEB",
+    
+    avatar: {
         alignSelf: "center",
-        borderColor: "#0000FF",
+        height:140,
+        width: 140,
+        borderColor: "#fafafa",
+        backgroundColor: "#fafafa",
         borderRadius: 5,
-        borderWidth: 1,               
-        justifyContent: 'center'
+        borderWidth: 1,
+        justifyContent: 'center',
+        paddingHorizontal:20,
+        marginLeft:25,
+        marginRight:25,
+        borderRadius:5,
+        marginBottom:10
     }
 });
 
