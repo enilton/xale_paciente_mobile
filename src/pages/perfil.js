@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {StyleSheet, TextInput, View, TouchableHighlight, TouchableOpacity, Image, Picker, Text } from 'react-native';
+import {StyleSheet
+    , TextInput
+    , View
+    , TouchableHighlight
+    , TouchableOpacity
+    , Image
+    , Picker
+    , Text } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Icon } from 'react-native-elements';
 import * as LanguageConstants from '../resources/languages/br';
@@ -7,12 +14,11 @@ import * as Views from '../resources/views';
 import { ScrollView } from 'react-native-gesture-handler';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import * as GlobalConstants from '../resources/globalConstants';
-import MainFooter from '../componentes/footer/footer';
+import RodapePrincipal, * as FooterPrincipal from '../componentes/rodape/rodape';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import ImagePicker from 'react-native-image-picker';
 import api from "../services/api";
 import Moment from 'moment';
-
 
 class Perfil extends Component {
 
@@ -20,7 +26,7 @@ class Perfil extends Component {
 
     constructor(props) {
         super(props);  
-    };
+    };   
 
     state = {                  
         msg:'',          
@@ -30,12 +36,12 @@ class Perfil extends Component {
         emailVerified: true,
         cidadesImplementadas: [],  
         
-            nome: 'TESTE_NOME',
+            nome: '',
             dtNascimento: LanguageConstants.DEFAULT_DATE,
             fotoPerfil: '',
             cidade: '',              
             telefone:'',
-    };     
+    };      
 
     componentDidMount() {        
         this.carregarCidades();   
@@ -51,8 +57,9 @@ class Perfil extends Component {
         });
         Moment.locale('pt-BR');    
 
-        RNFS.readFile('../resources/img/profile-icon.PNG', 'base64')
+        /*RNFS.readFile('../resources/img/profile-icon.PNG', 'base64')
             .then(res => this.setState.fotoPerfil = res);
+            */
     };     
     
     showAlert = (show_progress_icon) => {
@@ -83,13 +90,25 @@ class Perfil extends Component {
     };
 
     _showImagePicker = () =>{
-        ImagePicker.launchImageLibrary(this.options, (response) => {
-            if (response.error) {
-                this.setState({msg:"falha ao carregar imagem"});
-            } else {                
-                this.setState({imgFlyer: response});
+        ImagePicker.launchImageLibrary(
+            {
+                title: LanguageConstants.IMAGE_PICKER_TITLE,
+                customButtons: [
+                    /*{ name: 'fb', title: 'Choose Photo from Facebook' }
+                */],
+                storageOptions: {
+                  skipBackup: true,
+                  path: 'images',
+                },
+              }
+            ,(response) => {
+                if (response.error) {
+                    this.setState({msg:"falha ao carregar imagem"});
+                } else {                
+                    this.setState({imgFlyer: response});
+                }
             }
-        });
+        );
     }
     
     renderEmailConfirmation = async () => {
@@ -117,7 +136,7 @@ class Perfil extends Component {
             return;   
         }    
        
-        this.atualizarPerfilUsuario();      
+        this.atualizarPerfilUsuario();    
     };
 
     atualizarPerfilUsuario = () => {   
@@ -128,11 +147,9 @@ class Perfil extends Component {
             idFirebase: usuarioFirebase.uid,
             nome: nome,
             dtNascimento: dtNascimento,
-            fotoPerfil: '',    
+            fotoPerfil,    
             cidade: cidade,          
         };
-
-        console.log(usuarioInfo);
 
         api.post('/usuarios', usuarioInfo).then((response) => {
             this.setState({ msg: LanguageConstants.UPDATE_PROFILE_SUCESS });           
@@ -154,116 +171,119 @@ class Perfil extends Component {
         
         return (
             <View style={styles.container}>            
-                <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>    
-                    {this.state.fotoPerfil && 
-                        <TouchableHighlight onPress={this._showImagePicker}>                                      
-                            <Image style={styles.uploadAvatar} source={this.state.fotoPerfil}/>         
-                        </TouchableHighlight>
-                    }
-
-                    {!this.state.fotoPerfil &&
-                        <TouchableHighlight onPress={this._showImagePicker}>                                      
-                            <Icon  style={styles.uploadAvatar} 
-                                  name='face'
-                                  type='material'
-                                  color='#da552f'
-                            />                        
-                        </TouchableHighlight>
-                    }
-
-                    <TextInput
-                            placeholder="e-mail"
-                            autoCapitalize="none"                    
-                            style={styles.input}
-                            maxLength={200}
-                            onChangeText={email => {}}
-                            value={this.state.usuarioFirebase.email}
-                            editable={false}/>
-
-
-                    <TouchableHighlight onPress={this.renderEmailConfirmation} isVisible={!this.state.usuarioFirebase.emailVerified}>
-                        <Image
-                            style={styles.alertEmailNaoVerificado}
+                <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>   
+                   
+                {/*this.state.fotoPerfil && 
+                    <TouchableHighlight onPress={this._showImagePicker}>
+                        <Image style={styles.uploadAvatar} 
                             source={this.state.fotoPerfil}
-                        />                    
-                    </TouchableHighlight>
+                        />      
+                    </TouchableHighlight>      
+                */}     
 
-                    <TextInput
-                            placeholder="telefone"
-                            autoCapitalize="none"                    
-                            style={styles.input}
-                            maxLength={200}                           
-                            value={this.state.usuarioFirebase.phoneNumber}
-                            editable={false}/>
-                    
-                    <TextInput
-                            placeholder="nome"
-                            autoCapitalize="none"                    
-                            style={styles.input}
-                            maxLength={200}
-                            onChangeText={nome => this.setState({ nome })}
-                            value={this.state.nome}/>
-
-                    <TextInput
-                            placeholder="data de nascimento"
-                            autoCapitalize="none"                    
-                            style={styles.input}
-                            maxLength={200}
-                            onChangeText={nome => this.setState({ dtNascimento: Moment(dtNascimento).format('DD/MM/YYYY')})}
-                            value={Moment(this.state.dtNascimento).format('DD/MM/YYYY')}                           
-                            onFocus={this._showDateTimePicker} />
-                    
-                    <TouchableOpacity style={styles.buttonData}
-                        onPress={this._showDateTimePicker}>
+                {!this.state.fotoPerfil &&
+                    <TouchableHighlight onPress={this._showImagePicker}>
                         <Icon
-                            name='calendar'
-                            type='evilicon'
-                            color='#517fa4'
-                        />
-                    </TouchableOpacity>
+                            name='face'
+                            type='material'
+                            color='#da552f'
+                        /> 
+                    </TouchableHighlight>  
+                }                       
 
-                    <DateTimePicker
-                            isVisible={this.state.isDateTimePickerVisible}
-                            mode="date"
-                            onConfirm={this._handleDatePicked}
-                            onCancel={this._hideDateTimePicker}
+                <TextInput
+                        placeholder="e-mail"
+                        autoCapitalize="none"                    
+                        style={styles.input}
+                        maxLength={200}
+                        onChangeText={email => {}}
+                        value={this.state.usuarioFirebase.email}
+                        editable={false}/>
+
+
+                <TouchableHighlight onPress={this.renderEmailConfirmation} isVisible={!this.state.usuarioFirebase.emailVerified}>
+                    <Image
+                        style={styles.alertEmailNaoVerificado}
+                        source={this.state.fotoPerfil}
+                    />                    
+                </TouchableHighlight>
+
+                <TextInput
+                        placeholder="telefone"
+                        autoCapitalize="none"                    
+                        style={styles.input}
+                        maxLength={200}                           
+                        value={this.state.usuarioFirebase.phoneNumber}
+                        editable={false}/>
+                
+                <TextInput
+                        placeholder="nome"
+                        autoCapitalize="none"                    
+                        style={styles.input}
+                        maxLength={200}
+                        onChangeText={nome => this.setState({ nome })}
+                        value={this.state.nome}/>
+
+                <TextInput
+                        placeholder="data de nascimento"
+                        autoCapitalize="none"                    
+                        style={styles.input}
+                        maxLength={200}
+                        onChangeText={nome => this.setState({ dtNascimento: Moment(dtNascimento).format('DD/MM/YYYY')})}
+                        value={Moment(this.state.dtNascimento).format('DD/MM/YYYY')}                           
+                        onFocus={this._showDateTimePicker} />
+                
+                <TouchableOpacity style={styles.buttonData}
+                    onPress={this._showDateTimePicker}>
+                    <Icon
+                        name='calendar'
+                        type='evilicon'
+                        color='#517fa4'
                     />
-                  
-                    <Picker
-                        selectedValue={this.state.cidade}
-                        onValueChange={ (itemValue, itemIndex) => ( this.setState({ cidade: itemValue }) ) } >
-                        <Picker.Item key={0} value={0} label={'cidade'} />
-                        {cidades}
-                     </Picker>
+                </TouchableOpacity>
 
-                     <TouchableOpacity style={styles.button}
-                        onPress={this.validarForm}>
-                       <Text>Salvar</Text>
-                    </TouchableOpacity>
+                <DateTimePicker
+                        isVisible={this.state.isDateTimePickerVisible}
+                        mode="date"
+                        onConfirm={this._handleDatePicked}
+                        onCancel={this._hideDateTimePicker}
+                />
+                
+                <Picker
+                    selectedValue={this.state.cidade}
+                    onValueChange={ (itemValue, itemIndex) => ( this.setState({ cidade: itemValue }) ) } >
+                    <Picker.Item key={0} value={0} label={'cidade'} />
+                    {cidades}
+                    </Picker>
+
+                    <TouchableOpacity style={styles.button}
+                    onPress={this.validarForm}>
+                    <Text>Salvar</Text>
+                </TouchableOpacity>
                    
                 </ScrollView>
-                 <AwesomeAlert
-                            show={showAlert}
-                            showProgress={true}
-                            title="Xale"
-                            message={msg}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={false}                                                     
-                    />   
-                    <AwesomeAlert
-                            show={showAlertWihtoutProgress}
-                            showProgress={false}
-                            title="Xale"
-                            message={msg}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={false}  
-                            onDismiss={() => this.hideAlerts()}                                                 
-                        />
-            <MainFooter />
+                <AwesomeAlert
+                    show={showAlert}
+                    showProgress={true}
+                    title="Xale"
+                    message={msg}
+                    closeOnTouchOutside={true}
+                    closeOnHardwareBackPress={false}
+                    showCancelButton={false}
+                    showConfirmButton={false}                                                     
+                />   
+                <AwesomeAlert
+                    show={showAlertWihtoutProgress}
+                    showProgress={false}
+                    title="Xale"
+                    message={msg}
+                    closeOnTouchOutside={true}
+                    closeOnHardwareBackPress={false}
+                    showCancelButton={false}
+                    showConfirmButton={false}  
+                    onDismiss={() => this.hideAlerts()}                                                 
+                />
+               <RodapePrincipal navigation={this.props.navigation}/>
             </View>
         );                            
     }
@@ -342,16 +362,6 @@ const styles = StyleSheet.create({
 
     footerTab: {
         color: "#0000FF"
-    },
-
-    uploadAvatar: {
-        height: 200,
-        width:200,       
-        backgroundColor: "transparent",
-        justifyContent: 'center',
-        alignItems: "center",
-        marginLeft: 5,
-        marginBottom:10       
     },
 
     alertEmailNaoVerificado : {

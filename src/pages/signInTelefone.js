@@ -140,7 +140,8 @@ class SignInTelefone extends Component {
                         {LanguageConstants.HOW_TO_START_TEXT}
                     </Text> 
               
-                    <PhoneInput style={styles.input}  maxLength={14}
+                    <PhoneInput style={styles.input}  maxLength={14} offset={20}
+                        autoFormat={true}
                          ref={(ref) => {                         
                             this.numeroTelefone = ref;                
                          }}                                                  

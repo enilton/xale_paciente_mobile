@@ -1,17 +1,17 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Footer, FooterTab, Button,  Badge } from 'native-base';
 import * as Views from '../../resources/views'; 
 
-export default class MainFooter extends Component { 
+class RodapePrincipal extends Component {
 
     constructor(props) {
-        super(props);  
-    };
+        super(props)
+    }
 
     render() {
-      return (
+    return (
         <Footer>
             <FooterTab>
                 <Button active badge vertical>
@@ -33,6 +33,8 @@ export default class MainFooter extends Component {
                 </Button>                
             </FooterTab>
         </Footer>    
-       );
-     }
-  }
+    );
+    }
+}
+
+export default RodapePrincipal

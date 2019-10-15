@@ -6,7 +6,7 @@ import * as Views from '../resources/views';
 import { ScrollView } from 'react-native-gesture-handler';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import * as GlobalConstants from '../resources/globalConstants';
-import MainFooter from '../componentes/footer/footer';
+import RodapePrincipal from '../componentes/rodape/rodape';
 import { Icon } from 'react-native-elements';
 
 
@@ -71,46 +71,36 @@ class Principal extends Component {
         const { showAlert, showAlertWihtoutProgress, msg } = this.state;          
         
         return (
-        <View style={styles.container}>
-            <ScrollView style={styles.scroll} 
-                        showsVerticalScrollIndicator={false}>    
+            <View style={styles.container}>
+                <ScrollView style={styles.scroll} 
+                            showsVerticalScrollIndicator={false}>                                
+                </ScrollView>
 
-                        <TouchableOpacity style={styles.button}
-                            onPress={() => this.props.navigation.navigate(Views.PROFILE)}>
-                            <Icon 
-                                    name='sc-telegram'
-                                    type='evilicon'
-                                    color='#da552f'
-                                />
-                        </TouchableOpacity>
+                <RodapePrincipal navigation={this.props.navigation}/>
+                
+                <AwesomeAlert
+                    show={showAlert}
+                    showProgress={true}
+                    title="Xale"
+                    message={msg}
+                    closeOnTouchOutside={true}
+                    closeOnHardwareBackPress={false}
+                    showCancelButton={false}
+                    showConfirmButton={false}                                                     
+                />     
 
-
-            </ScrollView>
-            <MainFooter />
-            <AwesomeAlert
-                            show={showAlert}
-                            showProgress={true}
-                            title="Xale"
-                            message={msg}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={false}                                                     
-                        />     
-
-                    <AwesomeAlert
-                            show={showAlertWihtoutProgress}
-                            showProgress={false}
-                            title="Xale"
-                            message={msg}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={false}  
-                            onDismiss={() => this.hideAlerts()}                                                 
-                        />
-
-        </View>
+                <AwesomeAlert
+                    show={showAlertWihtoutProgress}
+                    showProgress={false}
+                    title="Xale"
+                    message={msg}
+                    closeOnTouchOutside={true}
+                    closeOnHardwareBackPress={false}
+                    showCancelButton={false}
+                    showConfirmButton={false}  
+                    onDismiss={() => this.hideAlerts()}                                                 
+                />
+            </View>
         );
     }
 };
@@ -183,7 +173,6 @@ const styles = StyleSheet.create({
               
     }
 });
-
 
 export default Principal;
 

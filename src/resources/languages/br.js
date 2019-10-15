@@ -34,6 +34,7 @@ export const NAME_FORCED = 'Como gostaria de ser chamado(a)?';
 export const BORN_FORCED = 'Qual a sua data de nascimento?';
 export const CITY_FORCED = 'Também precisamos saber qual a sua cidade';
 export const DEFAULT_DATE = '01/01/1900';
+export const IMAGE_PICKER_TITLE = 'Escolha uma foto bacana';
 
 
 
