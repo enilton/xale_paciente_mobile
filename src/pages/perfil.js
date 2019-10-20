@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {StyleSheet, TextInput, View, TouchableHighlight, TouchableOpacity, Image, Picker, Text } from 'react-native';
+import {StyleSheet
+    , TextInput
+    , View
+    , TouchableHighlight
+    , TouchableOpacity
+    , Image
+    , Picker
+    , Text } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Icon } from 'react-native-elements';
 import * as LanguageConstants from '../resources/languages/br';
@@ -7,13 +14,11 @@ import * as Views from '../resources/views';
 import { ScrollView } from 'react-native-gesture-handler';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import * as GlobalConstants from '../resources/globalConstants';
-import MainFooter from '../componentes/footer/footer';
+import RodapePrincipal, * as FooterPrincipal from '../componentes/rodape/rodape';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import ImagePicker from 'react-native-image-picker';
 import api from "../services/api";
 import Moment from 'moment';
-import RNFS from 'react-native-fs';
-
 
 class Perfil extends Component {
 
@@ -21,7 +26,7 @@ class Perfil extends Component {
 
     constructor(props) {
         super(props);  
-    };
+    };   
 
     state = {                  
         msg:'',          
@@ -31,12 +36,12 @@ class Perfil extends Component {
         emailVerified: true,
         cidadesImplementadas: [],  
         
-            nome: 'TESTE_NOME',
+            nome: '',
             dtNascimento: LanguageConstants.DEFAULT_DATE,
-            fotoPerfil: ProfileIcon,
+            fotoPerfil: '',
             cidade: '',              
             telefone:'',
-    };     
+    };      
 
     componentDidMount() {        
         this.carregarCidades();   
@@ -52,8 +57,9 @@ class Perfil extends Component {
         });
         Moment.locale('pt-BR');    
 
-        RNFS.readFile('../resources/img/profile-icon.PNG', 'base64')
+        /*RNFS.readFile('../resources/img/profile-icon.PNG', 'base64')
             .then(res => this.setState.fotoPerfil = res);
+            */
     };     
     
     showAlert = (show_progress_icon) => {
@@ -84,13 +90,25 @@ class Perfil extends Component {
     };
 
     _showImagePicker = () =>{
-        ImagePicker.launchImageLibrary(this.options, (response) => {
-            if (response.error) {
-                this.setState({msg:"falha ao carregar imagem"});
-            } else {                
-                this.setState({imgFlyer: response});
+        ImagePicker.launchImageLibrary(
+            {
+                title: LanguageConstants.IMAGE_PICKER_TITLE,
+                customButtons: [
+                    /*{ name: 'fb', title: 'Choose Photo from Facebook' }
+                */],
+                storageOptions: {
+                  skipBackup: true,
+                  path: 'images',
+                },
+              }
+            ,(response) => {
+                if (response.error) {
+                    this.setState({msg:"falha ao carregar imagem"});
+                } else {                
+                    this.setState({imgFlyer: response});
+                }
             }
-        });
+        );
     }
     
     renderEmailConfirmation = async () => {
@@ -118,7 +136,7 @@ class Perfil extends Component {
             return;   
         }    
        
-        this.atualizarPerfilUsuario();      
+        this.atualizarPerfilUsuario();    
     };
 
     atualizarPerfilUsuario = () => {   
@@ -129,11 +147,9 @@ class Perfil extends Component {
             idFirebase: usuarioFirebase.uid,
             nome: nome,
             dtNascimento: dtNascimento,
-            fotoPerfil: fotoPerfil,    
+            fotoPerfil,    
             cidade: cidade,          
         };
-
-        console.log(usuarioInfo);
 
         api.post('/usuarios', usuarioInfo).then((response) => {
             this.setState({ msg: LanguageConstants.UPDATE_PROFILE_SUCESS });           
@@ -155,39 +171,56 @@ class Perfil extends Component {
         
         return (
             <View style={styles.container}>            
-                <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>    
-                    {this.state.fotoPerfil && 
-                        <TouchableHighlight onPress={this._showImagePicker}>                                      
-                            <Image style={styles.uploadAvatar} source={this.state.fotoPerfil}/>         
-                        </TouchableHighlight>
-                    }
+                <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>   
+
+                    <Text style={styles.textoSuperior}>
+                        Perfil
+                    </Text>
+                    
+                    {/*this.state.fotoPerfil && 
+                        <TouchableHighlight onPress={this._showImagePicker}>
+                            <Image style={styles.uploadAvatar} 
+                                source={this.state.fotoPerfil}
+                            />      
+                        </TouchableHighlight>      
+                    */}     
 
                     {!this.state.fotoPerfil &&
-                        <TouchableHighlight onPress={this._showImagePicker}>                                      
-                            <Icon  style={styles.uploadAvatar} 
-                                  name='face'
-                                  type='material'
-                                  color='#da552f'
-                            />                        
-                        </TouchableHighlight>
-                    }
+                        <TouchableHighlight onPress={this._showImagePicker}
+                            style={styles.avatar}>
+                            <Icon 
+                                name='face'
+                                type='material'
+                                color='#da552f'
+                            /> 
+                        </TouchableHighlight>  
+                    } 
 
-                    <TextInput
+                    {this.state.usuarioFirebase.emailVerified &&
+                        <TextInput
                             placeholder="e-mail"
                             autoCapitalize="none"                    
                             style={styles.input}
+                            maxLength={200}                        
+                            value={this.state.usuarioFirebase.email}
+                            editable={false}  
+                        />
+                    }  
+
+                    {!this.state.usuarioFirebase.emailVerified &&
+                        <TextInput
+                            placeholder="e-mail"
+                            autoCapitalize="none"                    
+                            style={styles.inputEmailNaoVerificado}
                             maxLength={200}
                             onChangeText={email => {}}
+                            onPress={() => {
+                                this.renderEmailConfirmation
+                            }}
                             value={this.state.usuarioFirebase.email}
-                            editable={false}/>
-
-
-                    <TouchableHighlight onPress={this.renderEmailConfirmation} isVisible={!this.state.usuarioFirebase.emailVerified}>
-                        <Image
-                            style={styles.alertEmailNaoVerificado}
-                            source={this.state.fotoPerfil}
-                        />                    
-                    </TouchableHighlight>
+                            editable={false}  
+                        />
+                    }                  
 
                     <TextInput
                             placeholder="telefone"
@@ -206,65 +239,62 @@ class Perfil extends Component {
                             value={this.state.nome}/>
 
                     <TextInput
-                            placeholder="data de nascimento"
-                            autoCapitalize="none"                    
-                            style={styles.input}
-                            maxLength={200}
-                            onChangeText={nome => this.setState({ dtNascimento: Moment(dtNascimento).format('DD/MM/YYYY')})}
-                            value={Moment(this.state.dtNascimento).format('DD/MM/YYYY')}                           
-                            onFocus={this._showDateTimePicker} />
+                        placeholder="data de nascimento"
+                        autoCapitalize="none"                    
+                        style={styles.input}
+                        maxLength={200}
+                        onChangeText={nome => this.setState({ dtNascimento: Moment(dtNascimento).format('DD/MM/YYYY')})}
+                        value={Moment(this.state.dtNascimento).format('DD/MM/YYYY')}                           
+                        onFocus={this._showDateTimePicker} 
+                        onPress={this._showDateTimePicker}/>                
                     
-                    <TouchableOpacity style={styles.buttonData}
-                        onPress={this._showDateTimePicker}>
-                        <Icon
-                            name='calendar'
-                            type='evilicon'
-                            color='#517fa4'
-                        />
-                    </TouchableOpacity>
-
                     <DateTimePicker
                             isVisible={this.state.isDateTimePickerVisible}
                             mode="date"
                             onConfirm={this._handleDatePicked}
                             onCancel={this._hideDateTimePicker}
                     />
-                  
+                    
                     <Picker
                         selectedValue={this.state.cidade}
+                        style={styles.input}
                         onValueChange={ (itemValue, itemIndex) => ( this.setState({ cidade: itemValue }) ) } >
                         <Picker.Item key={0} value={0} label={'cidade'} />
-                        {cidades}
-                     </Picker>
+                            {cidades}
+                    </Picker>
 
-                     <TouchableOpacity style={styles.button}
+                    <TouchableOpacity style={styles.button}
                         onPress={this.validarForm}>
-                       <Text>Salvar</Text>
+                        <Icon 
+                            name='sc-telegram'
+                            type='evilicon'
+                            color='#4169E1'
+                        /> 
                     </TouchableOpacity>
                    
                 </ScrollView>
-                 <AwesomeAlert
-                            show={showAlert}
-                            showProgress={true}
-                            title="Xale"
-                            message={msg}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={false}                                                     
-                    />   
-                    <AwesomeAlert
-                            show={showAlertWihtoutProgress}
-                            showProgress={false}
-                            title="Xale"
-                            message={msg}
-                            closeOnTouchOutside={true}
-                            closeOnHardwareBackPress={false}
-                            showCancelButton={false}
-                            showConfirmButton={false}  
-                            onDismiss={() => this.hideAlerts()}                                                 
-                        />
-            <MainFooter />
+                <AwesomeAlert
+                    show={showAlert}
+                    showProgress={true}
+                    title="Xale"
+                    message={msg}
+                    closeOnTouchOutside={true}
+                    closeOnHardwareBackPress={false}
+                    showCancelButton={false}
+                    showConfirmButton={false}                                                     
+                />   
+                <AwesomeAlert
+                    show={showAlertWihtoutProgress}
+                    showProgress={false}
+                    title="Xale"
+                    message={msg}
+                    closeOnTouchOutside={true}
+                    closeOnHardwareBackPress={false}
+                    showCancelButton={false}
+                    showConfirmButton={false}  
+                    onDismiss={() => this.hideAlerts()}                                                 
+                />
+               <RodapePrincipal navigation={this.props.navigation}/>
             </View>
         );                            
     }
@@ -273,14 +303,14 @@ class Perfil extends Component {
 const styles = StyleSheet.create({
     scroll: {
         flex: 5,
-        backgroundColor: "#fafafa"
+        backgroundColor: "#4169E1"
     },
 
     container: {
         flex: 1,
-        backgroundColor: "#fafafa",
+        backgroundColor: "#4169E1",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center"        
     },
 
     input:{
@@ -288,24 +318,38 @@ const styles = StyleSheet.create({
         width: 280,
         backgroundColor: "#fafafa",
         alignSelf: "stretch",
-        borderColor: "#0000FF",
+        borderColor: "#4169E1",
         borderWidth:1,        
         paddingHorizontal:20,
         marginLeft:25,
         marginRight:25,
         borderRadius:5,
         marginBottom:10
-    },    
+    }, 
+    
+    inputEmailNaoVerificado: {
+        height:45,
+        width: 280,
+        backgroundColor: "#fafafa",
+        alignSelf: "stretch",
+        borderColor: "#da552f",
+        borderWidth:1,        
+        paddingHorizontal:20,
+        marginLeft:25,
+        marginRight:25,
+        borderRadius:5,
+        marginBottom:10
+    },
 
     button: {
         height: 45, 
         width: 280,       
         backgroundColor: "#87CEEB",
         alignSelf: "center",
-        borderColor: "#0000FF",
+        borderColor: "#4169E1",
         borderRadius: 5,
         borderWidth: 1,               
-        justifyContent: 'center'
+        justifyContent: 'center'        
     },
 
     linkButton: {
@@ -313,7 +357,7 @@ const styles = StyleSheet.create({
         width: 280,       
         backgroundColor: "transparent",
         alignSelf: "center",
-        borderColor: "#0000FF",        
+        borderColor: "#4169E1",        
         borderWidth: 0,               
         justifyContent: 'center'        
     },
@@ -342,28 +386,23 @@ const styles = StyleSheet.create({
     },
 
     footerTab: {
-        color: "#0000FF"
+        color: "#4169E1"
     },
-
-    uploadAvatar: {
-        height: 200,
-        width:200,       
-        backgroundColor: "transparent",
-        justifyContent: 'center',
-        alignItems: "center",
-        marginLeft: 5,
-        marginBottom:10       
-    },
-
-    alertEmailNaoVerificado : {
-        height: 10, 
-        width: 10,       
-        backgroundColor: "#87CEEB",
+    
+    avatar: {
         alignSelf: "center",
-        borderColor: "#0000FF",
+        height:140,
+        width: 140,
+        borderColor: "#fafafa",
+        backgroundColor: "#fafafa",
         borderRadius: 5,
-        borderWidth: 1,               
-        justifyContent: 'center'
+        borderWidth: 1,
+        justifyContent: 'center',
+        paddingHorizontal:20,
+        marginLeft:25,
+        marginRight:25,
+        borderRadius:5,
+        marginBottom:10
     }
 });
 
